@@ -2,10 +2,11 @@
 .Rhistory
 .RData
 .Ruserdata
-.log
+*.log
 renv/
 run1/
 run2/
 run1.html
 run2.html
 app2.R
+data/*.csv
