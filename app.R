@@ -12,11 +12,12 @@ sci_names <- arrow::read_parquet("data/sci_names.parquet")
 ui <- bootstrapPage(
     tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
     leafletOutput("map", width = "100%", height = "100%"),
-    absolutePanel(top = 10, right = 10,
+    absolutePanel(style = "max-width: 30%;background-color: rgba(255,255,255,0.7);padding: 0px 10px 0px 10px;border-radius: 10px",top = 10, right = 10,
                   selectizeInput("sci_name",
                                  label = "Enter scientific Name",
                                  choices = NULL,
                                  multiple = FALSE,
+                                 width = "100%",
                                  options = list(
                                    create = FALSE,
                                    placeholder = "Turdus pelios",
@@ -26,6 +27,7 @@ ui <- bootstrapPage(
                   gt::gt_output("species_in_area"),
                   htmlOutput("species_list_text")),
     absolutePanel(bottom = 10,left = 10,
+                  style="background-color: rgba(255,255,255,0.7);padding: 10px 30px 10px 30px;border-radius: 20px;",
                   sliderInput(
                     "day_month",
                     "Select Day of year",
@@ -57,7 +59,12 @@ server <- function(input, output, session) {
       select(species_list) %>%
       separate_rows(species_list,sep = ",") %>%
       count(species_list,sort=T,name = "Count") %>%
-      slice_max(Count,n=10)
+      slice_max(Count,n=5) %>%
+      rename("Species" = "species_list") %>%
+      gt::gt() %>%
+      gt::tab_options(table.font.size = "12pt",heading.title.font.size = "14pt") %>%
+      gt::tab_header(title = "Most observed species in area") %>%
+      gtExtras::gt_plt_bar(column = Count,color = "darkgreen",scale_type = "number")
   })
 
   # init leaflet map
