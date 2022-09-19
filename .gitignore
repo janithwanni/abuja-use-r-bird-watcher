@@ -10,6 +10,8 @@ run1.html
 run2.html
 app2.R
 data/*.csv
-archive/
+archive/*.log
+archive/*.html
+archive/run*/
 data-raw/
 rsconnect/
