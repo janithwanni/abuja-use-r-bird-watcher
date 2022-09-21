@@ -10,7 +10,7 @@ df_sites <- arrow::read_parquet("data/data.parquet") %>%
 sci_names <- arrow::read_parquet("data/sci_names.parquet")
 
 ui <- bootstrapPage(
-    tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
+    tags$style(type = "text/css", "html, body {width:100%;height:100%} #species_list_text { padding: 20px; border: 1px solid #ededed; border-radius: 10px; margin: 10px; display: flex; flex-direction: row;flex-wrap: wrap;} .species_item{ flex-basis: 50%; } .species_list_header{font-weight:700;color: green; margin-bottom: 20px;}"),
     leafletOutput("map", width = "100%", height = "100%"),
     absolutePanel(style = "max-width: 30%;background-color: rgba(255,255,255,0.7);padding: 0px 10px 0px 10px;border-radius: 10px",top = 10, right = 10,
                   selectizeInput("sci_name",
@@ -90,7 +90,10 @@ server <- function(input, output, session) {
 
   output$species_list_text <- renderUI({
     if(!is.null(input$map_marker_click)){
-    df_sites %>%
+      print(input$map_marker_click)
+      marker_data <- str_split(input$map_marker_click,"_",simplify=TRUE)[1,]
+      marker_month <- lubridate::month(as.Date(glue::glue("2021-{marker_data[4]}-01")),label=TRUE,abbr = FALSE)
+    species_list <- df_sites %>%
       filter(site_id == input$map_marker_click$id) %>%
       select(species_list) %>%
       unlist() %>%
@@ -98,8 +101,12 @@ server <- function(input, output, session) {
       str_split(",") %>%
       unlist() %>%
       head(10) %>%
-      paste(collapse = " <br/> ") %>%
-      HTML()
+      paste(collapse = "</span><span class='species_item'>")
+    header <- glue::glue("<span class='species_list_header'> Most popular bird species found at <br> {marker_data[1]},{marker_data[1]} in the month of {marker_month}</span>")
+    species_list <- paste(header,"<span class='species_item'>",species_list,"</span>",collapse='')
+    return(HTML(species_list))
+    }else{
+      HTML("<span> Click on a marker to see the list of birds ordered by overall popularity </span>")
     }
   })
 
