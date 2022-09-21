@@ -2,6 +2,7 @@ library(shiny)
 library(leaflet)
 library(tidyverse)
 library(reactlog)
+library(svglite) # for shinyapps.io to install
 
 reactlog_enable()
 
@@ -90,7 +91,6 @@ server <- function(input, output, session) {
 
   output$species_list_text <- renderUI({
     if(!is.null(input$map_marker_click)){
-      print(input$map_marker_click)
       marker_data <- str_split(input$map_marker_click,"_",simplify=TRUE)[1,]
       marker_month <- lubridate::month(as.Date(glue::glue("2021-{marker_data[4]}-01")),label=TRUE,abbr = FALSE)
     species_list <- df_sites %>%
